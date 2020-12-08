@@ -20,7 +20,7 @@ server 3.north-america.pool.ntp.org
 w
 q
 " | sudo ed /etc/ntp.conf
-invoke-rc.d ntp restart
+sudo invoke-rc.d ntp restart
 
 GATEWAY="$(ip route show | awk '/default/{print $3}')"
 IP_ADDR="$(ip route show | awk '/\//{print $1}')"
@@ -51,6 +51,9 @@ case $COUNT in
         LINE="$(grep -n "dhcp" "$NETPLAN_FILE" | tr ":" " " | awk '{print $1}')"
         printf $LINE"c\n      addresses: [$IP_ADDR]\n      gateway4: $GATEWAY\n      nameservers:\n        addresses: 1.1.1.1\n.\nw\nq\n" | ed $NETPLAN_FILE ;;
 esac
+
+# Apply changes to the netplan file
+sudo netplan apply
 
 # Enable firewall
 sudo apt install ufw
