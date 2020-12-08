@@ -13,15 +13,10 @@ sudo apt upgrade
 # Go to home directory
 cd
 
-# Establish new hostname and domain name
+# Establish new hostname
 sudo hostname "$DOMAIN"                     # transient hostname
 echo "$DOMAIN" > "hostname"
 sudo cp "hostname" "/etc/hostname"          # static hostname
-echo "domain krlx.org" > resolv.conf
-echo "nameserver 1.1.1.1" >> resolv.conf
-sudo mv /etc/resolv.conf /etc/resolv.conf.orig
-sudo chattr +i resolv.conf
-sudo ln -s "${pwd}/resolv.conf" "/etc"      # domain name and DNS nameserver
 
 # Install some important packages
 sudo apt install git htop ufw
