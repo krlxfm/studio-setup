@@ -32,7 +32,7 @@ sudo ufw enable
 
 git clone https://github.com/LibreTime/libretime.git
 cd libretime
-./install -fiap
+sudo ./install -fiap
 # It will prompt if you would like to run composer as root... it seems that the
 # script is written in a way which requires you to continue as root, since you
 # needed to call `sudo ./install -fiap`, and thus are root for the duration of
