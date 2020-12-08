@@ -1,59 +1,30 @@
 #/bin/sh
 
 # Installs and configures LibreTime to run on a KRLX server with domain stream.krlx.org
-# This script intended to be run on a clean install of Ubuntu 18.04
+# This script intended to be run on a clean install of Debian
+# (Ubuntu is messier -- see netplan)
 
-sudo apt update || exit 1    # forces user to be root, and requires internet access, else exits
+DOMAIN="stream.krlx.org"    # Ensure that stream.krlx.org points to this server's IP
+DNS="1.1.1.1"   # Cloudflare
+
+sudo apt update || exit 1    # forces user to be a sudoer, and requires internet access, else exits
 sudo apt upgrade
 
-# Set up ntp to synchronize times properly
-sudo apt install ntp
-# Add ntp servers using ed
+# Go to home directory
+cd
 
-printf "16a
-server ntp.ubuntu.com
-server 0.north-america.pool.ntp.org
-server 1.north-america.pool.ntp.org
-server 2.north-america.pool.ntp.org
-server 3.north-america.pool.ntp.org
-.
-w
-q
-" | sudo ed /etc/ntp.conf
-sudo invoke-rc.d ntp restart
+# Establish new hostname and domain name
+sudo hostname "$DOMAIN"                     # transient hostname
+echo "$DOMAIN" > "hostname"
+sudo cp "hostname" "/etc/hostname"          # static hostname
+echo "domain krlx.org" > resolv.conf
+echo "nameserver 1.1.1.1" >> resolv.conf
+sudo mv /etc/resolv.conf /etc/resolv.conf.orig
+sudo chattr +i resolv.conf
+sudo ln -s "${pwd}/resolv.conf" "/etc"      # domain name and DNS nameserver
 
-GATEWAY="$(ip route show | awk '/default/{print $3}')"
-IP_ADDR="$(ip route show | awk '/\//{print $1}')"
-
-# Overwrite netplan config file to have static IP of server
-sudo mkdir -p /etc/netplan
-NETPLAN_ED="0a
-# This file describes the network interfaces available on your system
-# For more information, see netplan(5).
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    enp3s0:
-      addresses: [$IP_ADDR]
-      gateway4: $GATEWAY
-      nameservers:
-        addresses: 1.1.1.1
-.
-w
-q
-"
-COUNT="$(ls -1 /etc/netplan/*.netcfg.yaml | wc -l)"
-case $COUNT in
-    0) touch /etc/netplan/01-netcfg.yaml
-        printf "$NETPLAN" | sudo ed /etc/netplan/01-netcfg.yaml ;;
-    *) NETPLAN_FILE="$(ls -1 /etc/netplan/*-netcfg.yaml | head -1)"
-        LINE="$(grep -n "dhcp" "$NETPLAN_FILE" | tr ":" " " | awk '{print $1}')"
-        printf $LINE"c\n      addresses: [$IP_ADDR]\n      gateway4: $GATEWAY\n      nameservers:\n        addresses: 1.1.1.1\n.\nw\nq\n" | ed $NETPLAN_FILE ;;
-esac
-
-# Apply changes to the netplan file
-sudo netplan apply
+# Install some important packages
+sudo apt install git htop ufw
 
 # Enable firewall
 sudo apt install ufw
@@ -73,7 +44,7 @@ cd libretime
 # the script.
 
 # Now, need to configure LibreTime through the browser-based client
-echo "Open $IP_ADDR in a web browser (without HTTPS-Everywhere)"
+echo "Open $DOMAIN in a web browser (without HTTPS-Everywhere)"
 echo "to finish configuring LibreTime.  Recommended to change passwords."
 echo "Once finished with configuration, press <Enter>."
 read DONE
