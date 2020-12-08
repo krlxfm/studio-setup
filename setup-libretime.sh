@@ -56,3 +56,7 @@ sudo systemctl enable rabbitmq-server || sudo systemctl enable rabbitmq-server.s
 # from its server to a mixing console or transmitter"
 sudo adduser www-data audio
 
+# Set up HTTPS using certbot
+# WARNING: This may break things, so leaving it commented out
+#sudo apt install certbot python3-certbot-apache
+#sudo certbot --apache   # get and install certificate
