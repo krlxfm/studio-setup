@@ -23,12 +23,12 @@ sudo apt install git htop ufw
 
 # Enable firewall
 sudo apt install ufw
-sudo ufw enable
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 8000/tcp
 sudo ufw allow 8001/tcp
 sudo ufw allow 8002/tcp
+sudo ufw enable
 
 git clone https://github.com/LibreTime/libretime.git
 cd libretime
