@@ -18,6 +18,8 @@ sudo hostname "$DOMAIN"                     # transient hostname
 echo "$DOMAIN" > "hostname"
 sudo cp "hostname" "/etc/hostname"          # static hostname
 
+sudo timedatectl set-timezone America/Chicago
+
 # Install some important packages
 sudo apt install git htop ufw
 
