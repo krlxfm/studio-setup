@@ -86,14 +86,20 @@ def build_buttrc(template, output, login, password):
     os.remove(tmp_name)
 
 
-def main():
-    credentials_filename = get_credentials_filename()
-    login, password = find_current_credentials(credentials_filename)
-    build_buttrc(TEMPLATE, BUTTRC, login, password)
+def run_butt():
     subprocess.Popen(
             ['ssh', HOST, 'butt', '-c', BUTTRC],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
+
+
+def main():
+    credentials_filename = get_credentials_filename()
+    login, password = find_current_credentials(credentials_filename)
+    build_buttrc(TEMPLATE, BUTTRC, login, password)
+    run_butt()  # Could be run by a separate thread, to keep the primary thread available for timing, graphics, etc.
+    # monitor_butt()      # The command `butt -S` prints the status of a currently-running butt instance, but seems to fail on Mac
+    # Check out https://danielnoethen.de/butt/manual.html for more details (near bottom of page for "Command line options")
 
 
 if __name__ == '__main__':
